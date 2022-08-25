@@ -1,0 +1,197 @@
+﻿@model ApiManager.Models.Bandeja
+
+@section css{
+    <link rel="stylesheet" href="~/plugins/DataTables/media/css/dataTables.bootstrap.min.css" />
+	<link rel="stylesheet" href="~/plugins/DataTables/extensions/Responsive/css/responsive.bootstrap.min.css" />
+}
+
+@using (Html.BeginForm("BuscarApi", "ApiManager", FormMethod.Post))
+{
+  @Html.AntiForgeryToken()
+
+  <div class="row">
+		<div class="col-md-6 py-3 m-auto">
+			<div class="option1 form-group form-inline">
+				<label class="mx-3">Nombre Microservicio</label>
+				<div class="input-group">
+					<input type="text" id="nombreMicroservicio" name="nombreMicroservicio" class="form-control" placeholder="Ingrese Nombre" required>
+					<div class="input-group-append">
+						<button type="submit" class="btn btn-success" onclick="validaBusqueda()">
+							<i class="fa fa-search"></i> Buscar
+						</button>
+					</div>
+					<div class="input-group-append">
+						<button type="button" class="btn btn-success" onclick="limpiar()">
+							<i class="fa fa-broom"></i> Limpiar
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+   </div>
+}
+
+
+	<div class="row">
+		<div class="col-md-12">
+			<!-- begin panel -->
+			<div class="panel panel-inverse">
+				<!-- begin panel-heading -->
+				<div class="panel-heading">
+					<h4 class="panel-title">Listado de microservicios</h4>
+				</div>
+				<!-- end panel-heading -->
+				<!-- begin panel-body -->
+				<div class="panel-body" style="overflow: auto">
+					<div class="table-responsive" id="DivBandeja">
+					<table id="gridViewTasks" class="table table-bordered w-100">
+						<thead>
+							<tr>
+								<th class="text-nowrap">Nombre - link a detalle</th>
+								<th class="text-nowrap">Descripción</th>
+								<th class="text-nowrap">Url Bitbucket</th>
+								<th class="text-nowrap">Url Swagger</th>
+							</tr>
+						</thead>
+						<tbody>
+							@if (Model.respuestaGetApi != null)
+							{
+								@foreach (var item in Model.respuestaGetApi)
+								{
+									<tr>
+										<td>
+											<a href="javascript:detalleApi('@item.Nombre')">
+												@item.Nombre
+                                            </a>
+										</td>
+										<td>@item.Descripcion</td>
+										<td>
+											<a href="@item.UrlRespositorio" target="_blank">
+												<img src="@Url.Content("~/img/bitbucket.png")" style="width:30px;height:30px;">
+                                            </a>
+										</td>
+										<td>
+											<a href="@item.UrlSwagger" target="_blank">
+												<img src="@Url.Content("~/img/swagger.png")" style="width:30px;height:30px;">
+                                            </a>
+										</td>
+									</tr>
+								}
+							}
+						</tbody>
+					</table>
+					</div>
+				</div>
+				<!-- end panel-body -->
+			</div>
+			<!-- end panel -->
+		</div>
+	</div>
+
+	<!--Modal Detalle Api-->
+    <div class="modal fade" id="modal_detalleApi" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+		<div class="modal-dialog modal-lg" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title"><span id="tituloModalGenerico"></span>Titulo modal</h5>
+				</div>
+				<div class="modal-body">
+                
+					<div class="panel-body">
+						<div class="row justify-content-center">
+							<div class="col-md-12">
+								<label class="control-label f-w-700 mb-0">URL:</label>	
+								<p>
+									http://aazocar-pc:7780/paridad.api/api/GetParidad/{TipoMoneda}/{FechaParidad}/
+								</p>
+							</div>
+							<div class="col-md-12">
+								<label class="control-label f-w-700 mb-0">Descripcion:</label>
+								<p>
+									Este microservicio obtiene el valor del tipo de moneda enviado.
+								</p>
+							</div>		
+							<div class="col-md-4">
+								<label class="control-label f-w-700 mb-0">Tipo verbo:</label>
+								<p>
+									Get
+								</p>
+							</div>
+							<div class="col-md-4">
+								<label class="control-label f-w-700 mb-0">Esquema:</label>
+								<p>
+									GENVIR
+								</p>
+							</div>
+							<div class="col-md-4">
+								<label class="control-label f-w-700 mb-0">Package:</label>
+								<p>
+									GENVIR_SOAP
+								</p>
+							</div>
+							<div class="col-md-4">
+								<label class="control-label f-w-700 mb-0">Función:</label>
+								<p>	
+									TRAE_TERIFA
+								</p>
+							</div>
+							<div class="col-md-4">
+								<label class="control-label f-w-700 mb-0">Tiene token?:</label>
+								<p>
+									Si
+								</p>
+							</div>
+							<div class="col-md-4">
+								<label class="control-label f-w-700 mb-0">Caché activado:</label>
+								<p>
+									4 hrs
+								</p>
+							</div>
+							<div class="col-md-12 mt-3 d-flex flex-row justify-content-center flex-wrap">
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer d-flex justify-content-between">
+					<div class="btnUtilidades">
+						<button type="button" id="btn-Cancelar" class="btn btn-hdi-primary mx-1">Testear método</button>
+						<button type="button" id="btn-Cancelar" class="btn btn-hdi-primary mx-1">Ver Swagger</button>
+						<button type="button" id="btn-Cancelar" class="btn btn-hdi-primary mx-1">Parámetros entrada</button>
+						<button type="button" id="btn-Cancelar" class="btn btn-hdi-primary mx-1">Retorno</button>
+						<button type="button" id="btn-Cancelar" class="btn btn-hdi-primary mx-1">Ocelot.json</button>
+					</div>
+
+					<div class="btnCerrar">
+						<button type="button" id="btn-Cancelar" class="btn btn-hdi-outline-tertiary" data-dismiss="modal">Cerrar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+@section js {
+	 <script src="~/plugins/DataTables/media/js/jquery.dataTables.js"></script>
+	 <script src="~/plugins/DataTables/media/js/dataTables.bootstrap.min.js"></script>
+	 <script src="~/plugins/DataTables/extensions/Responsive/js/dataTables.responsive.min.js"></script>
+	 <script src="~/js/demo/table-manage-default.demo.min.js"></script>
+
+<script>
+
+
+	function validaBusqueda() {
+		 
+	}
+
+    function limpiar() {
+		$("#gridViewTasks > tbody").empty();
+		$('input[type="text"]').val('');	 
+	}
+
+	function detalleApi(nombre) {
+		
+		$('#tituloModalGenerico').html("Detalle Api " + nombre);
+		$('#modal_detalleApi').modal('show');
+	}
+</script>
+}

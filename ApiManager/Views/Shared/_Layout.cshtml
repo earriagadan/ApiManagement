@@ -1,0 +1,113 @@
+﻿<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <title>HDI Seguros</title>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
+
+    <!-- ================== CSS ================== -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+    <link rel="stylesheet" href="~/plugins/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/plugins/gritter/css/jquery.gritter.css" />
+    <link rel="stylesheet" href="~/plugins/font-awesome/css/all.css" />
+    <link rel="stylesheet" href="~/css/default/cargando.css" />
+    <link rel="stylesheet" href="~/css/default/style-responsive.min.css" />
+    <link rel="stylesheet" href="~/css/default/theme/default.css" />
+    <link rel="stylesheet" href="~/css/default/style.css" />
+    
+    @RenderSection("css", required: false)
+    <!-- ================== CSS ================== -->
+</head>
+<body class="pace-top">
+    <div id="divCargando" class="contenedorLoader" style="display: none">
+        <div class="loader"></div>
+    </div>
+    <div id="page-loader" class="fade show"><span class="spinner"></span></div>
+
+    <div id="page-container" class="page-container fade page-sidebar-fixed page-header-fixed">
+        <!-- begin #header -->
+        @Html.Partial("ViewPartialHeader")
+        <!-- end #header -->
+        <!-- begin #sidebar -->
+        @Html.Partial("ViewPartialMenu")
+        <!-- begin #sidebar -->
+        <!-- begin #content -->
+        <div id="content" class="content">
+            @RenderBody()
+        </div>
+        <!-- end #content -->
+        <!-- begin scroll to top btn -->
+        <a href="javascript:;" class="btn btn-icon btn-circle btn-success btn-scroll-to-top fade" data-click="scroll-top"><i class="fa fa-angle-up"></i></a>
+        <!-- end scroll to top btn -->
+    </div>
+
+    <!-- ================== JS ================== -->
+     <script src="~/plugins/jquery/jquery-3.3.1.min.js"></script>
+    <script src="~/plugins/jquery-ui/jquery-ui.min.js"></script>
+    <script src="~/plugins/gritter/js/jquery.gritter.js"></script>
+    <script src="~/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/theme/default.min.js"></script>
+    <script src="~/js/apps.js"></script>
+
+    @await RenderSectionAsync("js", required: false)
+
+    <script>
+        $(document).ready(function () {
+            App.init();
+            TableManageDefault.init();
+
+            //ACTIVAR MENU
+            var url = window.location.pathname;
+            $(".active").removeClass("active");
+            $('.nav-link[href="' + url + '"]').offsetParent().addClass("active");
+        });
+
+        function loading(valor) {
+            if (valor == 1) {
+                $("#divCargando").show();
+                $("body").addClass("body_login");
+            } else {
+                $("#divCargando").hide();
+                $("body").removeClass("body_login");
+            }
+        }
+
+        //RESPUESTA
+        var respuesta = @Model.CodigoRespuesta ;
+        if (respuesta > 0) {
+            ModalEmergente(respuesta, "@Model.MensajeRespuesta");
+        }
+        function ModalEmergente(Opcion, msn) {
+            var img = "";
+            var Titulo = "";
+
+            switch (Opcion) {
+                case 1:
+                    img = "@Url.Content("~/img/error.png")";
+                    Titulo = "Error";
+                    break;
+                case 2:
+                    img = "@Url.Content("~/img/sucesso.png")";
+                    Titulo = "Ok"
+                    break;
+                 case 3:
+                    img = "@Url.Content("~/img/warning.png")";
+                    Titulo = "Advertencia"
+                    break;
+            }
+            
+            $.gritter.add({
+                image: img,
+                fade: true,
+                title: Titulo,
+                text: msn,
+                sticky: false,
+                class_name: 'my-sticky-class'
+            });
+        }
+    </script>
+    <!-- ================== JS ================== -->
+</body>
+</html>
