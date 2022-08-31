@@ -5,7 +5,7 @@
 	<link rel="stylesheet" href="~/plugins/DataTables/extensions/Responsive/css/responsive.bootstrap.min.css" />
 }
 
-@using (Html.BeginForm("BuscarApi", "ApiManager", FormMethod.Post))
+@*@using (Html.BeginForm("BuscarApi", "ApiManager", FormMethod.Post))
 {
   @Html.AntiForgeryToken()
 
@@ -29,7 +29,7 @@
 			</div>
 		</div>
    </div>
-}
+}*@
 
 
 	<div class="row">
@@ -49,8 +49,20 @@
 							<tr>
 								<th class="text-nowrap">Nombre - link a detalle</th>
 								<th class="text-nowrap">Descripción</th>
+								<th class="text-nowrap">Fecha Creación</th>
 								<th class="text-nowrap">Url Bitbucket</th>
 								<th class="text-nowrap">Url Swagger</th>
+								
+								<!-- campos ocultos para filtrar -->
+								<th class="text-nowrap d-none">Base de datos</th>
+								<th class="text-nowrap d-none">Esquema</th>
+								<th class="text-nowrap d-none">Package</th>
+								<th class="text-nowrap d-none">Funcion</th>
+								<th class="text-nowrap d-none">TipoVerbo</th>
+								<th class="text-nowrap d-none">NombreDesarrollador</th>
+								<th class="text-nowrap d-none">NombreJefeProyecto</th>
+								<th class="text-nowrap d-none">EmailJefeProyecto</th>
+								<th class="text-nowrap d-none">EmailDesarrollador</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -60,11 +72,12 @@
 								{
 									<tr>
 										<td>
-											<a href="javascript:detalleApi('@item.Nombre')">
+											<a href="javascript:detalleApi('@item.Nombre','@item.Descripcion','@item.UrlRespositorio')">
 												@item.Nombre
                                             </a>
 										</td>
 										<td>@item.Descripcion</td>
+										<td>@item.FechaCreacion</td>
 										<td>
 											<a href="@item.UrlRespositorio" target="_blank">
 												<img src="@Url.Content("~/img/bitbucket.png")" style="width:30px;height:30px;">
@@ -75,6 +88,17 @@
 												<img src="@Url.Content("~/img/swagger.png")" style="width:30px;height:30px;">
                                             </a>
 										</td>
+
+										<!-- campos ocultos para filtrar -->
+										<td class="d-none" >@item.Detalle.BaseDeDatos</td>
+										<td class="d-none" >@item.Detalle.Esquema</td>
+										<td class="d-none" >@item.Detalle.Package</td>
+										<td class="d-none" >@item.Detalle.Funcion</td>
+										<td class="d-none" >@item.Detalle.TipoVerbo</td>
+										<td class="d-none" >@item.Detalle.NombreDesarrollador</td>
+										<td class="d-none" >@item.Detalle.NombreJefeProyecto</td>
+										<td class="d-none" >@item.Detalle.EmailJefeProyecto</td>
+										<td class="d-none" >@item.Detalle.EmailDesarrollador</td>
 									</tr>
 								}
 							}
@@ -93,60 +117,100 @@
 		<div class="modal-dialog modal-lg" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h5 class="modal-title"><span id="tituloModalGenerico"></span>Titulo modal</h5>
+					<h5 class="modal-title"><span id="tituloModalGenerico"></span></h5>
 				</div>
 				<div class="modal-body">
                 
 					<div class="panel-body">
 						<div class="row justify-content-center">
 							<div class="col-md-12">
-								<label class="control-label f-w-700 mb-0">URL:</label>	
+								<label class="control-label f-w-700 mb-0">URL Bitbucket:</label>	
 								<p>
-									http://aazocar-pc:7780/paridad.api/api/GetParidad/{TipoMoneda}/{FechaParidad}/
+									<span id="urlBitbucket"></span>
 								</p>
 							</div>
 							<div class="col-md-12">
 								<label class="control-label f-w-700 mb-0">Descripcion:</label>
 								<p>
-									Este microservicio obtiene el valor del tipo de moneda enviado.
+									<span id="descripcion"></span>
 								</p>
 							</div>		
-							<div class="col-md-4">
-								<label class="control-label f-w-700 mb-0">Tipo verbo:</label>
+							<div class="col-md-2">
+								<label class="control-label f-w-700 mb-0">Base de Datos:</label>
 								<p>
-									Get
+									<span id="baseDatos"></span>
 								</p>
 							</div>
-							<div class="col-md-4">
+							<div class="col-md-2">
 								<label class="control-label f-w-700 mb-0">Esquema:</label>
 								<p>
-									GENVIR
+									<span id="esquema"></span>
 								</p>
 							</div>
 							<div class="col-md-4">
 								<label class="control-label f-w-700 mb-0">Package:</label>
 								<p>
-									GENVIR_SOAP
+									<span id="package"></span>
 								</p>
 							</div>
 							<div class="col-md-4">
 								<label class="control-label f-w-700 mb-0">Función:</label>
 								<p>	
-									TRAE_TERIFA
+									<span id="funcion"></span>
 								</p>
 							</div>
-							<div class="col-md-4">
+
+							<div class="col-md-3">
+								<label class="control-label f-w-700 mb-0">Tipo verbo:</label>
+								<p>
+									<span id="tipo"></span>
+								</p>
+							</div>
+							<div class="col-md-3">
 								<label class="control-label f-w-700 mb-0">Tiene token?:</label>
 								<p>
-									Si
+									No
 								</p>
 							</div>
-							<div class="col-md-4">
+							<div class="col-md-3">
 								<label class="control-label f-w-700 mb-0">Caché activado:</label>
 								<p>
-									4 hrs
+									No
 								</p>
 							</div>
+							<div class="col-md-3">
+								<label class="control-label f-w-700 mb-0">Fecha Modificacion:</label>
+								<p>
+									<span id="fechaModificacion"></span>
+								</p>
+							</div>
+
+							<div class="col-md-3">
+								<label class="control-label f-w-700 mb-0">Nombre Desarrollador:</label>
+								<p>
+									<span id="nombreDesarrollador"></span>
+								</p>
+							</div>
+							<div class="col-md-3">
+								<label class="control-label f-w-700 mb-0">Emaíl Desarrollador:</label>
+								<p>
+									<span id="emailDesarrollador"></span>
+								</p>
+							</div>
+							<div class="col-md-3">
+								<label class="control-label f-w-700 mb-0">Nombre Jefe Proyecto:</label>
+								<p>
+									<span id="nombreJefeProyecto"></span>
+								</p>
+							</div>
+							<div class="col-md-3">
+								<label class="control-label f-w-700 mb-0">Emaíl Jefe Proyecto:</label>
+								<p>
+									<span id="emailJefeProyecto"></span>
+								</p>
+							</div>
+							
+
 							<div class="col-md-12 mt-3 d-flex flex-row justify-content-center flex-wrap">
 							</div>
 						</div>
@@ -188,10 +252,44 @@
 		$('input[type="text"]').val('');	 
 	}
 
-	function detalleApi(nombre) {
-		
-		$('#tituloModalGenerico').html("Detalle Api " + nombre);
-		$('#modal_detalleApi').modal('show');
+	function detalleApi(nombre, descr , urlBitbucket) {
+		loading(1);
+        var UrlDetalleApi = '@Url.Action("IrDetalleApi", "ApiManager")';
+		$.ajax({
+			type: "POST",
+			url: UrlDetalleApi + "/?nombre="+ nombre,
+			success: function (r) {
+				loading(0);
+
+                console.log(r);
+
+				$('#tituloModalGenerico').html("Detalle Api " + nombre);
+
+				$('#urlBitbucket').html(urlBitbucket);
+				$('#descripcion').html(descr);
+
+				$('#baseDatos').html(r.respuestaDetalleGetApi.baseDeDatos);
+				$('#esquema').html(r.respuestaDetalleGetApi.esquema);
+				$('#package').html(r.respuestaDetalleGetApi.package);
+				$('#funcion').html(r.respuestaDetalleGetApi.funcion);
+
+				$('#tipo').html(r.respuestaDetalleGetApi.tipoVerbo);
+				$('#fechaModificacion').html(r.respuestaDetalleGetApi.fechaModificacion);
+
+
+
+				$('#nombreDesarrollador').html(r.respuestaDetalleGetApi.nombreDesarrollador);
+				$('#nombreJefeProyecto').html(r.respuestaDetalleGetApi.nombreJefeProyecto);
+				$('#emailJefeProyecto').html(r.respuestaDetalleGetApi.emailJefeProyecto);
+				$('#emailDesarrollador').html(r.respuestaDetalleGetApi.emailDesarrollador);
+
+
+
+				
+								
+				$('#modal_detalleApi').modal('show');
+			}
+		});
 	}
 </script>
 }
