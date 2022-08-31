@@ -6,6 +6,12 @@ namespace ApiManager.Controllers
 {
     public class ApiManagerController : Controller
     {
+        IConfiguration Configuration = new ConfigurationBuilder()
+                                       .AddJsonFile("appsettings.json")
+                                       .AddEnvironmentVariables()
+                                       .Build();
+
+
         public IActionResult? Index(string sistema, string idUsuario, string token)
         {
             Logger.logInfo("INICIO Index Token: " + idUsuario);
@@ -15,7 +21,7 @@ namespace ApiManager.Controllers
             {
                 using (var client = new HttpClient())
                 {
-                    var uri = $"http://aazocar-pc:7780/IntegraApi/api/GetApi";
+                    var uri = $"{Configuration["ApiManagerGTW"]}/api/GetApi";
                     var data = string.Empty;
                     var responseString = client.PostAsJsonAsync(uri, data);
                     responseString.Wait();
@@ -23,7 +29,7 @@ namespace ApiManager.Controllers
                     if (responseString.Result.IsSuccessStatusCode)
                     {
                         var result = responseString.Result.Content.ReadAsStringAsync().Result;
-                        model.respuestaGetApi = JsonConvert.DeserializeObject<MensajeAPI<List<RespuestaGetApi>>>(result).Result;
+                        model.respuestaGetApi = JsonConvert.DeserializeObject<MensajeAPI<List<RespuestaGetApi>>>(result).Result.OrderBy(x => x.Nombre).ToList();
                     }
                 }
 
@@ -48,7 +54,7 @@ namespace ApiManager.Controllers
             {
                 using (var client = new HttpClient())
                 {
-                    var uri = $"http://aazocar-pc:7780/IntegraApi/api/GetApi";
+                    var uri = $"http://localhost:7780/IntegraApi/api/GetApi";
                     var data = string.Empty;
                     var responseString = client.PostAsJsonAsync(uri, data);
                     responseString.Wait();
@@ -80,18 +86,15 @@ namespace ApiManager.Controllers
             {
                 using (var client = new HttpClient())
                 {
-                    var uri = $"http://aazocar-pc:7780/IntegraApi/api/GetDetalleApi";
-                    var data = new
-                    {
-                        nombre = nombre
-                    };
+                    var uri = $"{Configuration["ApiManagerGTW"]}/api/GetApi";
+                    var data = string.Empty;
                     var responseString = client.PostAsJsonAsync(uri, data);
                     responseString.Wait();
 
                     if (responseString.Result.IsSuccessStatusCode)
                     {
                         var result = responseString.Result.Content.ReadAsStringAsync().Result;
-                        model.respuestaDetalleGetApi = JsonConvert.DeserializeObject<MensajeAPI<RespuestaDetalleGetApi>>(result).Result;
+                        model.respuestaDetalleGetApi = (JsonConvert.DeserializeObject<MensajeAPI<List<RespuestaGetApi>>>(result).Result.Where(x => x.Nombre.Equals(nombre)).ToList())[0].Detalle;
                     }
                 }
 
