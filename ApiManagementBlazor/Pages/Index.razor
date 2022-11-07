@@ -1,0 +1,405 @@
+﻿@page "/"
+
+@using ApiManagementBlazor.Data
+@using ApiManagementBlazor.Data.Ocelot
+@using ApiManagementBlazor.Services
+
+@inject ListarMicroserviciosService listarMicroserviciosService
+@inject ListarGTWService listarGTWService
+@inject DetalleMicroservicioService detalleMicroservicioService
+@inject IJSRuntime JS
+
+
+<div class="row">
+	<div class="col-md-6 py-3 m-auto">
+		<div class="option1 form-group form-inline">
+			<label class="mx-3">Nombre Microservicio</label>
+				
+			<div class="input-group">
+				<select name="repos" id="repos" class="form-control" @onchange="OnchangeComboRepos">
+					<option selected="selected" value="0">MicroServios</option>
+					<option value="1">GTW</option>
+				</select>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-md-12">
+		<!-- begin panel -->
+		<div class="panel panel-inverse">
+			<!-- begin panel-heading -->
+			<div class="panel-heading">
+				<h4 class="panel-title">Listado de microservicios</h4>
+			</div>
+			<!-- end panel-heading -->
+			<!-- begin panel-body -->
+			<div class="panel-body" style="overflow: auto">
+				<div class="table-responsive" id="DivBandeja">
+				@if (comboRepo.Equals("0"))
+				{
+					<table id="gridViewTasks" class="table table-bordered w-100">
+					<thead>
+						<tr>
+							<th class="text-nowrap">Nombre - link a detalle</th>
+							<th class="text-nowrap">Descripción</th>
+							<th class="text-nowrap">Fecha Creación</th>
+							<th class="text-nowrap">Url Bitbucket</th>
+							<th class="text-nowrap">Url Swagger</th>
+								
+							<!-- campos ocultos para filtrar -->
+							<th class="text-nowrap d-none">Base de datos</th>
+							<th class="text-nowrap d-none">Esquema</th>
+							<th class="text-nowrap d-none">Package</th>
+							<th class="text-nowrap d-none">Funcion</th>
+							<th class="text-nowrap d-none">TipoVerbo</th>
+							<th class="text-nowrap d-none">NombreDesarrollador</th>
+							<th class="text-nowrap d-none">NombreJefeProyecto</th>
+							<th class="text-nowrap d-none">EmailJefeProyecto</th>
+							<th class="text-nowrap d-none">EmailDesarrollador</th>
+						</tr>
+					</thead>
+					<tbody>
+						@if (listaTabla != null)
+						{
+							@foreach (var item in listaTabla)
+							{
+								<tr>
+									<td>
+										<a href="" @onclick="()=>detalleApi(item.Nombre,item.Descripcion,item.UrlRespositorio)">
+											@item.Nombre
+										</a>
+									</td>
+									<td>@item.Descripcion</td>
+									<td>@item.FechaCreacion</td>
+									<td>
+										<a href="@item.UrlRespositorio" target="_blank">
+											<img src="/img/bitbucket.png" style="width:30px;height:30px;">
+										</a>
+									</td>
+									<td>
+										<a href="@item.UrlSwagger" target="_blank">
+											<img src="/img/swagger.png" style="width:30px;height:30px;">
+										</a>
+									</td>
+
+									<!-- campos ocultos para filtrar -->
+									<td class="d-none">@item.Detalle.BaseDeDatos</td>
+									<td class="d-none">@item.Detalle.Esquema</td>
+									<td class="d-none">@item.Detalle.Package</td>
+									<td class="d-none">@item.Detalle.Funcion</td>
+									<td class="d-none">@item.Detalle.TipoVerbo</td>
+									<td class="d-none">@item.Detalle.NombreDesarrollador</td>
+									<td class="d-none">@item.Detalle.NombreJefeProyecto</td>
+									<td class="d-none">@item.Detalle.EmailJefeProyecto</td>
+									<td class="d-none">@item.Detalle.EmailDesarrollador</td>
+								</tr>
+							}
+						}
+							
+					</tbody>
+					</table>
+				}
+				else{
+					<table id="gridViewTasks" class="table table-bordered w-100">
+						<thead>
+							<tr>
+								<th class="text-nowrap">Nombre - link a detalle</th>
+								<th class="text-nowrap">Descripción</th>
+								<th class="text-nowrap">Url Bitbucket</th>
+							</tr>
+						</thead>
+						<tbody>
+							@if (listaTablaGTW != null)
+							{
+								@foreach (var item in listaTablaGTW)
+								{
+									<tr>
+										<td>
+											<a href="" @onclick="()=>detalleGTW(item.Nombre)">
+												@item.Nombre
+											</a>
+										</td>
+										<td>@item.Descripcion</td>
+										<td>
+											<a href="@item.UrlRespositorio" target="_blank">
+												<img src="/img/bitbucket.png" style="width:30px;height:30px;">
+                                            </a>
+										</td>
+									</tr>
+								}
+							}
+						</tbody>
+					</table>
+				}
+				</div>
+			</div>
+			<!-- end panel-body -->
+		</div>
+		<!-- end panel -->
+	</div>
+</div>
+
+<!--Modal Detalle Api-->
+<div class="modal fade" id="modal_detalleApi" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title"><span id="tituloModalGenerico">Detalle Microservicio</span></h5>
+			</div>
+			<div class="modal-body">
+				<div class="row justify-content-center">
+					<div class="col-md-12">
+						<label class="control-label f-w-700 mb-0">URL Bitbucket:</label>
+						<p>
+							<span id="urlBitbucket">@respuestaDetalleGetApi.urlBitbucket</span>
+						</p>
+					</div>
+					<div class="col-md-12">
+						<label class="control-label f-w-700 mb-0">Nombre Método:</label>
+						<p>
+							<span id="nombreMetodo">@respuestaDetalleGetApi.NombreMetodo</span>
+						</p>
+					</div>
+					<div class="col-md-12">
+						<label class="control-label f-w-700 mb-0">Descripcion:</label>
+						<p>
+							<span id="descripcion">@respuestaDetalleGetApi.descripcion</span>
+						</p>
+					</div>
+					<div class="col-md-2">
+						<label class="control-label f-w-700 mb-0">Base de Datos:</label>
+						<p>
+							<span id="baseDatos">@respuestaDetalleGetApi.BaseDeDatos</span>
+						</p>
+					</div>
+					<div class="col-md-2">
+						<label class="control-label f-w-700 mb-0">Esquema:</label>
+						<p>
+							<span id="esquema">@respuestaDetalleGetApi.Esquema</span>
+						</p>
+					</div>
+					<div class="col-md-4">
+						<label class="control-label f-w-700 mb-0">Package:</label>
+						<p>
+							<span id="package">@respuestaDetalleGetApi.Package</span>
+						</p>
+					</div>
+					<div class="col-md-4">
+						<label class="control-label f-w-700 mb-0">Función:</label>
+						<p>
+							<span id="funcion">@respuestaDetalleGetApi.Funcion</span>
+						</p>
+					</div>
+
+					<div class="col-md-3">
+						<label class="control-label f-w-700 mb-0">Tipo verbo:</label>
+						<p>
+							<span id="tipo">@respuestaDetalleGetApi.TipoVerbo</span>
+						</p>
+					</div>
+					<div class="col-md-3">
+						<label class="control-label f-w-700 mb-0">Esta duplicado?:</label>
+						<p>
+							<span id="duplicado">
+								@(respuestaDetalleGetApi.Duplicado == true ? "Si" : "No")
+
+							</span>
+						</p>
+					</div>
+					<div class="col-md-3">
+						<label class="control-label f-w-700 mb-0">Caché activado:</label>
+						<p>
+							No
+						</p>
+					</div>
+					<div class="col-md-3">
+						<label class="control-label f-w-700 mb-0">Fecha Modificacion:</label>
+						<p>
+							<span id="fechaModificacion">@respuestaDetalleGetApi.FechaModificacion</span>
+						</p>
+					</div>
+
+					<div class="col-md-3">
+						<label class="control-label f-w-700 mb-0">Nombre Desarrollador:</label>
+						<p>
+							<span id="nombreDesarrollador">@respuestaDetalleGetApi.NombreDesarrollador</span>
+						</p>
+					</div>
+					<div class="col-md-3">
+						<label class="control-label f-w-700 mb-0">Emaíl Desarrollador:</label>
+						<p>
+							<span id="emailDesarrollador">@respuestaDetalleGetApi.EmailDesarrollador</span>
+						</p>
+					</div>
+					<div class="col-md-3">
+						<label class="control-label f-w-700 mb-0">Nombre Jefe Proyecto:</label>
+						<p>
+							<span id="nombreJefeProyecto">@respuestaDetalleGetApi.NombreJefeProyecto</span>
+						</p>
+					</div>
+					<div class="col-md-3">
+						<label class="control-label f-w-700 mb-0">Emaíl Jefe Proyecto:</label>
+						<p>
+							<span id="emailJefeProyecto">@respuestaDetalleGetApi.EmailJefeProyecto</span>
+						</p>
+					</div>
+					<div class="col-md-12">
+						<h6 class="modal-title">Listado Parámetros Entrada</h6>
+						<table class="table table-bordered w-100">
+							<thead>
+								<tr>
+									<th class="text-nowrap">Nombre</th>
+									<th class="text-nowrap">Tipo</th>
+								</tr>
+							</thead>
+							<tbody>
+								@if (@respuestaDetalleGetApi.parametros != null)
+								{
+									@foreach (var item in respuestaDetalleGetApi.parametros)
+									{
+										<tr>
+											<td>
+												@item.Nombre
+											</td>
+											<td>
+												@item.Tipo
+											</td>
+										</tr>
+									}
+								}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer d-flex justify-content-between">
+				<div class="btnUtilidades">
+				</div>
+
+				<div class="btnCerrar">
+					<button type="button" id="btn-Cancelar" class="btn btn-hdi-outline-tertiary" data-dismiss="modal">Cerrar</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!--Modal Detalle Api-->
+<div class="modal fade" id="modal_detalleGTW" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title"><span id="tituloModalGenerico">Listado Microservicio Utilizados por el GTW</span></h5>
+			</div>
+			<div class="modal-body">
+				<div class="row justify-content-center">
+					<table class="table table-bordered w-100">
+						<thead>
+							<tr>
+								<th class="text-nowrap">Nombre</th>
+								<th class="text-nowrap">URL Microservicio</th>
+								<th class="text-nowrap">URL GTW</th>
+								<th class="text-nowrap">Tiene Token?</th>
+							</tr>
+						</thead>
+						<tbody>
+							@if (api != null)
+							{
+								@foreach (var item in api)
+								{
+									<tr>
+										<td>
+											@item.NombreApi
+										</td>
+										<td>
+											@item.UrlApi
+										</td>
+										<td>
+											@item.UrlGTW
+										</td>
+										<td>
+											@(item.SeguridadActivada == true ? "Si" : "No")
+										</td>
+
+									</tr>
+								}
+							}
+						</tbody>
+					</table>
+
+				</div>
+			</div>
+			<div class="modal-footer d-flex justify-content-between">
+				<div class="btnCerrar">
+					<button type="button" id="btn-Cancelar" class="btn btn-hdi-outline-tertiary" data-dismiss="modal">Cerrar</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+@code {
+	private List<RespuestaGetApi> listaTabla = new();
+	private List<RespuestaGetGateway> listaTablaGTW = new();
+	private RespuestaDetalleGetApi respuestaDetalleGetApi = new();
+	private List<Api> api = new();
+	private string comboRepo = "0";
+
+	bool loaded = false;
+	protected override async Task OnInitializedAsync()
+	{
+		listaTabla = await listarMicroserviciosService.GetListarMicroservicios();
+		loaded = true;
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		await JS.InvokeAsync<string>("loading", 1);
+		if (loaded)
+		{
+			loaded = false;
+			await JS.InvokeAsync<object>("DataTablesRemove");
+			await JS.InvokeAsync<object>("handleDataTableDefault");
+		}
+		await JS.InvokeAsync<string>("loading", 0);
+	}
+
+	private async Task detalleApi(string nombre, string descr , string urlBitbucket)
+	{
+		await JS.InvokeAsync<string>("showModal");
+		await JS.InvokeAsync<string>("loading", 1);
+		respuestaDetalleGetApi = await detalleMicroservicioService.GetDetalleMicroservicio(nombre);
+		respuestaDetalleGetApi.descripcion = descr;
+		respuestaDetalleGetApi.urlBitbucket = urlBitbucket;
+		await JS.InvokeAsync<string>("loading", 0);
+	}
+
+	private async Task OnchangeComboRepos(ChangeEventArgs e)
+	{
+		await JS.InvokeAsync<string>("loading", 1);
+		comboRepo = e.Value.ToString();
+		if (comboRepo.Equals("0"))
+		{
+			listaTabla = await listarMicroserviciosService.GetListarMicroservicios();
+			loaded = true;
+		}
+		else if (comboRepo.Equals("1"))
+		{
+			listaTablaGTW = await listarGTWService.GetListarGTW();
+			loaded = true;
+		}
+		await JS.InvokeAsync<string>("loading", 0);
+	}
+
+	private async Task detalleGTW(string nombre)
+	{
+		await JS.InvokeAsync<string>("showModalGTW");
+		await JS.InvokeAsync<string>("loading", 1);
+		api = listaTablaGTW.Where(x => x.Nombre.Equals(nombre)).FirstOrDefault().Apis;
+		await JS.InvokeAsync<string>("loading", 0);
+	}
+
+}
