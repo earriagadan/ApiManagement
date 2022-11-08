@@ -296,40 +296,42 @@
 			</div>
 			<div class="modal-body">
 				<div class="row justify-content-center">
-					<table class="table table-bordered w-100">
-						<thead>
-							<tr>
-								<th class="text-nowrap">Nombre</th>
-								<th class="text-nowrap">URL Microservicio</th>
-								<th class="text-nowrap">URL GTW</th>
-								<th class="text-nowrap">Tiene Token?</th>
-							</tr>
-						</thead>
-						<tbody>
-							@if (api != null)
-							{
-								@foreach (var item in api)
+					<div class="col-md-12 table-responsive">
+
+						<table class="table table-bordered w-100">
+							<thead>
+								<tr>
+									<th class="text-nowrap">Nombre</th>
+									<th class="text-nowrap">URL Microservicio</th>
+									<th class="text-nowrap">URL GTW</th>
+									<th class="text-nowrap">Tiene Token?</th>
+								</tr>
+							</thead>
+							<tbody>
+								@if (api != null)
 								{
-									<tr>
-										<td>
-											@item.NombreApi
-										</td>
-										<td>
-											@item.UrlApi
-										</td>
-										<td>
-											@item.UrlGTW
-										</td>
-										<td>
-											@(item.SeguridadActivada == true ? "Si" : "No")
-										</td>
+									@foreach (var item in api)
+									{
+										<tr>
+											<td>
+												@item.NombreApi
+											</td>
+											<td>
+												@item.UrlApi
+											</td>
+											<td>
+												@item.UrlGTW
+											</td>
+											<td>
+												@(item.SeguridadActivada == true ? "Si" : "No")
+											</td>
 
-									</tr>
+										</tr>
+									}
 								}
-							}
-						</tbody>
-					</table>
-
+							</tbody>
+						</table>
+					</div>
 				</div>
 			</div>
 			<div class="modal-footer d-flex justify-content-between">
