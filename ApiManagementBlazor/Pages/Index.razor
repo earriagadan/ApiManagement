@@ -8,6 +8,7 @@
 @inject ListarGTWService listarGTWService
 @inject DetalleMicroservicioService detalleMicroservicioService
 @inject IJSRuntime JS
+@inject NavigationManager NavigationManager
 
 
 <div class="row">
@@ -75,12 +76,12 @@
 									<td>@item.FechaCreacion</td>
 									<td>
 										<a href="@item.UrlRespositorio" target="_blank">
-											<img src="/img/bitbucket.png" style="width:30px;height:30px;">
+											<img src="@(NavigationManager.Uri + "/img/bitbucket.png")" style="width:30px;height:30px;">
 										</a>
 									</td>
 									<td>
 										<a href="@item.UrlSwagger" target="_blank">
-											<img src="/img/swagger.png" style="width:30px;height:30px;">
+											<img src="@(NavigationManager.Uri + "/img/swagger.png")" style="width:30px;height:30px;">
 										</a>
 									</td>
 
@@ -124,7 +125,7 @@
 										<td>@item.Descripcion</td>
 										<td>
 											<a href="@item.UrlRespositorio" target="_blank">
-												<img src="/img/bitbucket.png" style="width:30px;height:30px;">
+												<img src="@(NavigationManager.Uri + "/img/bitbucket.png")" style="width:30px;height:30px;">
                                             </a>
 										</td>
 									</tr>
