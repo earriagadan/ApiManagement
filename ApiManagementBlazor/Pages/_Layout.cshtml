@@ -112,9 +112,6 @@
         function DataTablesRemove() {
             $(document).ready(function () {
                 $("#gridViewTasks").DataTable().destroy();
-                // Removes the datatable wrapper from the dom.
-                var elem = document.querySelector('#gridViewTasks' + '_wrapper');
-                elem.parentNode.removeChild(elem);
             });
         }
 
